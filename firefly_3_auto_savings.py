@@ -85,7 +85,7 @@ def create_auto_savings_transactions(valid_transactions, source_acct, dest_acct,
         
         if apply:
             payload = {
-                    'error_if_duplicate_hash': True,
+                    'error_if_duplicate_hash': False,
                     'transactions': [
                         {
                             'type': 'transfer', 
@@ -119,6 +119,8 @@ def parse_commandline():
             help='Some banks include widthdrawing cash as part of the simply savings transactions.\
                     If you have firefly setup to "transfer" into a cash wallet, this can get missed since its not a withdrawal.')
     parser.add_argument('--apply', action='store_true', default=False, help='Apply the transactions to the destination account, otherwise just print what it will do.')
+    parser.add_argument('--since-date', help='Only calculate transactions since a certain date')
+    parser.add_argument('--until-date', help='Only calculate transactions until a certain date')
 
     return parser.parse_args()
 
@@ -128,7 +130,7 @@ def main():
     source_acct = options.source_account
     dest_acct = options.destination_account
     amount = options.transfer_amount
-    IGNORE_CATEGORIES = options.ignore_categories
+    IGNORE_CATEGORIES.concat(options.ignore_categories)
 
     with open(options.token) as f:
         token = f.read().rstrip()
