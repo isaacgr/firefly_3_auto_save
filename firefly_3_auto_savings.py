@@ -1,5 +1,6 @@
 import argparse
 from datetime import datetime, timedelta
+from typing import Optional
 import requests
 
 BASE_URL = '/api/v1'
@@ -90,16 +91,38 @@ def create_auto_savings_transactions(
     dest_acct,
     amount,
     apply=False,
+    since_date: Optional[str] = None,
+    until_date: Optional[str] = None
 ):
     # for each transaction on a given date, create a new transfer
     # of the 'amount' specified for the next business day
     date_to_transactions = {}
+    since = None
+    until = None
+    if since_date:
+        since = datetime.strptime(
+            since_date,
+            '%Y-%m-%d',
+        )
+    if until_date:
+        until = datetime.strptime(
+            until_date,
+            '%Y-%m-%d',
+        )
 
     for transaction in valid_transactions:
         transaction_date = datetime.strptime(
             transaction['date'].split('T')[0],
             '%Y-%m-%d',
         )
+
+        if since:
+            if transaction_date < since:
+                continue
+
+        if until:
+            if transaction_date > until:
+                continue
 
         # if the transaction is on a weekend, it wont get processed until Monday
         # and so the auto save wont go out until a day after that
@@ -122,6 +145,7 @@ def create_auto_savings_transactions(
             f'Source {source_acct}. '
             f'Dest {dest_acct}. '
         )
+        print(transactions)
 
         if apply:
             payload = {
@@ -249,6 +273,8 @@ def main():
         dest_acct,
         amount,
         apply=options.apply,
+        since_date=options.since_date,
+        until_date=options.until_date
     )
 
 
