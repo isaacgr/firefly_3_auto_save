@@ -23,8 +23,8 @@ CASH_ACCOUNT_NAME = 'Cash wallet'
 TRANSFER_CURRENCY = 'CAD'
 
 
-def _get_target(ip: str, port: str, proto: str = 'https') -> str:
-    host = f'{proto}://{ip}:{port}'
+def _get_target(host: str, port: str, proto: str = 'https') -> str:
+    host = f'{proto}://{host}:{port}'
     path = f'{BASE_URL}' + f'{TRANSACTIONS_URL}'
     return host + path
 
@@ -84,6 +84,7 @@ def filter_valid_transactions(
 
 
 def create_auto_savings_transactions(
+    target: str,
     valid_transactions,
     source_acct,
     dest_acct,
@@ -137,7 +138,7 @@ def create_auto_savings_transactions(
                     }
                 ]
             }
-            response = requests.post(URL, headers=HEADERS, json=payload)
+            response = requests.post(target, headers=HEADERS, json=payload)
             print(response.text)
 
 
@@ -146,7 +147,8 @@ def parse_commandline():
         description='Create an (auto-savings transfer) transaction of the \
                         specified amount for each widthdrawal \
                         from source account to destination account. \
-                        This would mock something like the "simply savings" transfer that the \
+                        This would mock something like the "simply savings" \
+                        transfer that the \
                         banks can setup everytime your debit card is used.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -165,7 +167,7 @@ def parse_commandline():
         help='The name of the destination account to transfer to',
     )
     parser.add_argument(
-        '--ip',
+        '--host',
         default='127.0.0.1',
         help='IP of the firefly server',
     )
@@ -230,7 +232,7 @@ def main():
 
     HEADERS['Authorization'] = 'Bearer {}'.format(token)
 
-    target = _get_target(options.ip, options.port, options.proto)
+    target = _get_target(options.host, options.port, options.proto)
     transactions = get_all_transactions(
         target
     )
@@ -241,6 +243,7 @@ def main():
     )
 
     create_auto_savings_transactions(
+        target,
         valid_transactions,
         source_acct,
         dest_acct,
