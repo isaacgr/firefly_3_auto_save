@@ -145,7 +145,6 @@ def create_auto_savings_transactions(
             f'Source {source_acct}. '
             f'Dest {dest_acct}. '
         )
-        print(transactions)
 
         if apply:
             payload = {
