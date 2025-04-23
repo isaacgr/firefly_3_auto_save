@@ -13,7 +13,7 @@ HEADERS = {
 VALID_TRANSACTION_TYPES = ['withdrawal', 'withdrawals']
 
 # skip these categories if a withdrawal is made to them
-IGNORE_CATEGORIES = ['Bills']
+IGNORE_CATEGORIES = ['Bills', 'Account Fees', 'Credit Card']
 
 AUTOSAVE_DESCRIPTION = '(auto-savings transfer)'
 AUTOSAVE_CATEGORY = '(auto-savings)'
